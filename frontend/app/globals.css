@@ -1,0 +1,110 @@
+@import "tailwindcss";
+
+@theme {
+  /* Neutrals (slightly tinted for cohesion) */
+  --color-canvas: oklch(0.985 0.006 255);
+  --color-surface: oklch(0.995 0.004 255);
+  --color-foreground: oklch(0.18 0.03 260);
+  --color-faint: oklch(0.48 0.03 260);
+  --color-muted: oklch(0.6 0.02 260);
+  --color-border: oklch(0.9 0.01 260);
+
+  /* Accent (playful, used sparingly) */
+  --color-accent: oklch(0.6 0.2 285);
+  --color-accent-foreground: oklch(0.985 0.01 260);
+  --color-accent-2: oklch(0.72 0.16 25);
+
+  /* Semantic */
+  --color-danger: oklch(0.62 0.2 25);
+  --color-success: oklch(0.66 0.16 155);
+  --color-warning: oklch(0.78 0.16 85);
+
+  /* Translucent surfaces */
+  --color-glass: color-mix(in oklch, var(--color-surface) 72%, transparent);
+  --color-glass-hover: color-mix(in oklch, var(--color-surface) 86%, transparent);
+}
+
+:root {
+  --bg: var(--color-canvas);
+  --ring: color-mix(in oklch, var(--color-accent) 55%, white);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--color-foreground);
+  font-family: var(--font-sans), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: "ss01" 1, "ss02" 1, "cv10" 1;
+}
+
+/* Crisp but friendly focus, for keyboard users */
+.focus-ring {
+  outline: none;
+}
+.focus-ring:focus-visible {
+  box-shadow: 0 0 0 4px color-mix(in oklch, var(--ring) 35%, transparent);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: color-mix(in oklch, var(--color-foreground) 12%, transparent);
+  border-radius: 2px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in oklch, var(--color-foreground) 20%, transparent);
+}
+
+/* Line clamp */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+/* Subtle grid background on main */
+main {
+  background-image:
+    radial-gradient(circle at 22% 10%, color-mix(in oklch, var(--color-accent) 18%, transparent) 0%, transparent 52%),
+    radial-gradient(circle at 82% 92%, color-mix(in oklch, var(--color-accent-2) 16%, transparent) 0%, transparent 55%);
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite ease-in-out;
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.5s ease-out forwards;
+}

@@ -1,0 +1,25 @@
+# Environment
+.env
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+
+# Generated outputs (don't commit generated images)
+output/*/
+
+# Logs
+pipeline.log
+
+# macOS
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
