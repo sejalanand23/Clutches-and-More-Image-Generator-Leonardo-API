@@ -56,15 +56,13 @@ export default function Sidebar({ jobs, activeJobId, onJobClick, onNewSession, o
         <aside className="flex flex-col h-full bg-surface border-r border-border">
             {/* ── Brand header ── */}
             <div className="px-4 pt-5 pb-4 border-b border-border shrink-0">
-                <div className="flex items-center gap-2.5 mb-4">
-                    <div className="w-8 h-8 rounded-xl bg-accent flex items-center justify-center shadow-sm shrink-0">
-                        <Sparkles className="w-4 h-4 text-accent-foreground" />
-                    </div>
+                <div className="flex items-center gap-2.5 mb-5">
+                    <div className="w-2.5 h-2.5 rounded-full bg-[color:var(--color-accent)] shrink-0" />
                     <div className="flex-1">
-                        <p className="text-[13px] font-semibold text-foreground leading-tight tracking-tight">
+                        <p className="text-[14px] font-bold text-foreground leading-tight tracking-tight">
                             Clutches &amp; More
                         </p>
-                        <p className="text-[11px] text-faint leading-tight mt-px">AI Photo Studio</p>
+                        <p className="text-[11px] text-muted-foreground leading-tight mt-[2px]">AI Photo Studio</p>
                     </div>
                     {onCollapse && (
                         <button
@@ -81,8 +79,8 @@ export default function Sidebar({ jobs, activeJobId, onJobClick, onNewSession, o
                 <button
                     type="button"
                     onClick={onNewSession}
-                    className="focus-ring w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-[13px] font-medium transition-all active:scale-[0.98]
-                      bg-accent text-accent-foreground shadow-sm hover:bg-accent-hover"
+                    className="focus-ring w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-[14px] text-[13px] font-semibold transition-all active:scale-[0.98]
+                      bg-primary text-primary-foreground shadow-sm hover:opacity-90"
                 >
                     <Plus className="w-3.5 h-3.5" />
                     New generation
@@ -113,10 +111,10 @@ export default function Sidebar({ jobs, activeJobId, onJobClick, onNewSession, o
                                 key={value}
                                 type="button"
                                 onClick={() => setStatusFilter(value)}
-                                className={`focus-ring text-[11px] font-medium px-2.5 py-1 rounded-full transition-all ${
+                                className={`focus-ring text-[11px] font-medium px-2.5 py-1.5 rounded-full transition-all ${
                                     statusFilter === value
-                                        ? 'bg-accent text-accent-foreground'
-                                        : 'bg-surface-2 text-muted hover:text-secondary border border-border'
+                                        ? 'bg-primary text-primary-foreground'
+                                        : 'bg-card text-muted-foreground hover:text-foreground border border-border hover:border-gray-300'
                                 }`}
                             >
                                 {label}
@@ -127,10 +125,10 @@ export default function Sidebar({ jobs, activeJobId, onJobClick, onNewSession, o
                         <button
                             type="button"
                             onClick={() => setCategoryFilter((v) => v === 'bags' ? 'all' : 'bags')}
-                            className={`focus-ring text-[11px] font-medium px-2.5 py-1 rounded-full transition-all ${
+                            className={`focus-ring text-[11px] font-medium px-2.5 py-1.5 rounded-full transition-all ${
                                 categoryFilter === 'bags'
-                                    ? 'bg-accent text-accent-foreground'
-                                    : 'bg-surface-2 text-muted hover:text-secondary border border-border'
+                                    ? 'bg-primary text-primary-foreground'
+                                    : 'bg-card text-muted-foreground hover:text-foreground border border-border hover:border-gray-300'
                             }`}
                         >
                             Bags
@@ -138,10 +136,10 @@ export default function Sidebar({ jobs, activeJobId, onJobClick, onNewSession, o
                         <button
                             type="button"
                             onClick={() => setCategoryFilter((v) => v === 'jewelry' ? 'all' : 'jewelry')}
-                            className={`focus-ring text-[11px] font-medium px-2.5 py-1 rounded-full transition-all ${
+                            className={`focus-ring text-[11px] font-medium px-2.5 py-1.5 rounded-full transition-all ${
                                 categoryFilter === 'jewelry'
-                                    ? 'bg-accent text-accent-foreground'
-                                    : 'bg-surface-2 text-muted hover:text-secondary border border-border'
+                                    ? 'bg-primary text-primary-foreground'
+                                    : 'bg-card text-muted-foreground hover:text-foreground border border-border hover:border-gray-300'
                             }`}
                         >
                             Jewelry
@@ -176,7 +174,7 @@ export default function Sidebar({ jobs, activeJobId, onJobClick, onNewSession, o
                 ) : (
                     <div className="space-y-2">
                         <div className="flex items-center justify-between px-0.5 mb-2">
-                            <p className="text-[10px] font-semibold text-muted uppercase tracking-wider">
+                            <p className="eyebrow">
                                 History
                             </p>
                             {hasFilters && (
@@ -204,9 +202,12 @@ export default function Sidebar({ jobs, activeJobId, onJobClick, onNewSession, o
             </div>
 
             {/* ── Footer ── */}
-            <div className="px-4 py-3 border-t border-border shrink-0">
-                <p className="text-[11px] text-muted leading-none">
-                    Powered by <span className="font-medium text-secondary">Leonardo AI</span>
+            <div className="px-4 py-3.5 border-t border-border shrink-0 flex items-center justify-between">
+                <p className="text-[11px] text-muted-foreground leading-none">
+                    © {new Date().getFullYear()} Studio
+                </p>
+                <p className="text-[11px] text-muted-foreground italic font-display">
+                    Issue 01 · Spring
                 </p>
             </div>
         </aside>

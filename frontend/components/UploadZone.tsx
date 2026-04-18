@@ -64,41 +64,41 @@ export default function UploadZone({ files, onChange }: UploadZoneProps) {
     );
 
     return (
-        <div className="space-y-3">
-            <label className="block text-[13px] font-semibold text-foreground">
+        <div className="paper-card p-6 space-y-4">
+            <label className="block eyebrow mb-1">
                 Product images
             </label>
 
             {/* Drop zone */}
             <div
                 {...getRootProps({ tabIndex: 0 })}
-                className={`focus-ring relative cursor-pointer rounded-2xl border-2 border-dashed transition-all duration-300 ${
+                className={`group/dropzone focus-ring relative cursor-pointer rounded-xl border-2 border-dashed transition-all duration-300 ${
                     isDragActive
-                        ? 'border-[color:var(--color-accent)] bg-[color:color-mix(in_oklch,var(--color-accent)_7%,transparent)] scale-[1.005]'
-                        : 'border-border bg-white hover:border-[color:color-mix(in_oklch,var(--color-accent)_35%,var(--color-border))] hover:bg-surface-2'
+                        ? 'border-primary bg-primary/5 scale-[1.005]'
+                        : 'border-border bg-background hover:border-primary/40 hover:bg-card'
                 }`}
             >
                 <input {...getInputProps()} />
-                <div className="flex flex-col items-center gap-3 py-10 pointer-events-none">
+                <div className="flex flex-col items-center gap-4 py-10 pointer-events-none">
                     <div
-                        className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-colors ${
+                        className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300 group-hover/dropzone:rotate-[4deg] ${
                             isDragActive
-                                ? 'bg-[color:color-mix(in_oklch,var(--color-accent)_14%,transparent)]'
-                                : 'bg-surface-2 border border-border'
+                                ? 'bg-primary/10 border border-primary/20 scale-110'
+                                : 'bg-card border border-border shadow-xs group-hover/dropzone:shadow-sm group-hover/dropzone:bg-white'
                         }`}
                     >
                         {isDragActive ? (
-                            <Upload className="w-5 h-5 text-[color:var(--color-accent)]" />
+                            <Upload className="w-5 h-5 text-primary" />
                         ) : (
-                            <ImageIcon className="w-5 h-5 text-muted" />
+                            <ImageIcon className="w-5 h-5 text-muted-foreground" />
                         )}
                     </div>
                     <div className="text-center">
-                        <p className="text-[13px] font-semibold text-foreground">
+                        <p className="text-[13.5px] font-semibold text-foreground">
                             {isDragActive ? 'Drop to upload' : 'Drag & drop images here'}
                         </p>
-                        <p className="text-[12px] text-muted mt-1">
-                            or <span className="text-[color:var(--color-accent)] font-medium">browse files</span>
+                        <p className="text-[12px] text-muted-foreground mt-1">
+                            or <span className="text-accent font-medium hover:underline underline-offset-2">browse files</span>
                             &ensp;·&ensp;JPG, PNG, WEBP
                         </p>
                     </div>
@@ -107,16 +107,16 @@ export default function UploadZone({ files, onChange }: UploadZoneProps) {
 
             {/* Preview grid */}
             {fileItems.length > 0 && (
-                <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-2 animate-fade-in">
+                <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-2 animate-fade-in pt-1">
                     {fileItems.map(({ file, idx, key }) => {
                         const url = urlByKey.get(key);
                         return (
-                            <div key={key} className="relative aspect-square rounded-xl overflow-hidden group bg-surface-2 border border-border">
+                            <div key={key} className="relative aspect-square rounded-xl overflow-hidden group bg-muted border border-border shadow-xs">
                                 {url ? (
                                     // eslint-disable-next-line @next/next/no-img-element
                                     <img src={url} alt={file.name} className="w-full h-full object-cover" />
                                 ) : (
-                                    <div className="w-full h-full bg-surface-2" />
+                                    <div className="w-full h-full bg-muted" />
                                 )}
                                 {/* Remove button */}
                                 <button
@@ -128,8 +128,8 @@ export default function UploadZone({ files, onChange }: UploadZoneProps) {
                                     <X className="w-3 h-3 text-white" />
                                 </button>
                                 {/* Filename tooltip on hover */}
-                                <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/60 to-transparent px-1.5 py-1 translate-y-full group-hover:translate-y-0 transition-transform duration-200">
-                                    <p className="text-[10px] text-white/90 truncate leading-tight">{file.name}</p>
+                                <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/60 to-transparent px-1.5 py-1.5 translate-y-full group-hover:translate-y-0 transition-transform duration-200">
+                                    <p className="text-[10px] text-white/90 truncate leading-tight font-medium">{file.name}</p>
                                 </div>
                             </div>
                         );
@@ -137,10 +137,10 @@ export default function UploadZone({ files, onChange }: UploadZoneProps) {
                     {/* "Add more" tile */}
                     <div
                         {...getRootProps({ tabIndex: -1 })}
-                        className="aspect-square rounded-xl border-2 border-dashed border-border hover:border-[color:color-mix(in_oklch,var(--color-accent)_40%,var(--color-border))] bg-surface-2 hover:bg-[color:color-mix(in_oklch,var(--color-accent)_5%,transparent)] flex items-center justify-center cursor-pointer transition-colors"
+                        className="aspect-square rounded-xl border-2 border-dashed border-border hover:border-primary/40 bg-card hover:bg-primary/5 flex items-center justify-center cursor-pointer transition-colors shadow-none hover:shadow-sm"
                     >
                         <input {...getInputProps()} />
-                        <Upload className="w-4 h-4 text-muted" />
+                        <Upload className="w-4 h-4 text-muted-foreground" />
                     </div>
                 </div>
             )}

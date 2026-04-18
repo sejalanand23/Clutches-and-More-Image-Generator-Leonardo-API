@@ -1,89 +1,97 @@
 @import "tailwindcss";
 
 @theme {
-  /* ── Neutrals ───────────────────────────────────────────────── */
-  --color-canvas:      oklch(0.978 0.007 255);
-  --color-surface:     oklch(0.993 0.004 255);
-  --color-surface-2:   oklch(0.972 0.008 255);
-  --color-foreground:  oklch(0.16 0.028 260);
-  --color-secondary:   oklch(0.38 0.025 260);
-  --color-faint:       oklch(0.54 0.020 260);
-  --color-muted:       oklch(0.65 0.015 260);
-  --color-border:      oklch(0.88 0.012 260);
-  --color-border-2:    oklch(0.92 0.008 260);
+  --color-background: hsl(38 40% 96%);
+  --color-foreground: hsl(25 30% 14%);
 
-  /* ── Accent — vivid indigo ──────────────────────────────────── */
-  --color-accent:          oklch(0.55 0.22 285);
-  --color-accent-hover:    oklch(0.50 0.24 285);
-  --color-accent-subtle:   oklch(0.94 0.06 285);
-  --color-accent-foreground: oklch(0.99 0.005 260);
+  --color-card: hsl(40 50% 98%);
+  --color-card-foreground: hsl(25 30% 14%);
 
-  /* ── Secondary accent — coral ───────────────────────────────── */
-  --color-accent-2:        oklch(0.68 0.18 25);
-  --color-accent-2-subtle: oklch(0.95 0.05 25);
+  --color-popover: hsl(40 50% 98%);
+  --color-popover-foreground: hsl(25 30% 14%);
 
-  /* ── Semantic ───────────────────────────────────────────────── */
-  --color-danger:   oklch(0.60 0.20 25);
-  --color-success:  oklch(0.60 0.16 155);
-  --color-warning:  oklch(0.72 0.16 85);
+  --color-primary: hsl(25 30% 14%);
+  --color-primary-foreground: hsl(38 50% 97%);
 
-  /* ── Translucent surfaces ───────────────────────────────────── */
-  --color-glass:       color-mix(in oklch, var(--color-surface) 70%, transparent);
-  --color-glass-hover: color-mix(in oklch, var(--color-surface) 88%, transparent);
+  --color-secondary: hsl(95 18% 88%);
+  --color-secondary-foreground: hsl(95 25% 22%);
+
+  --color-muted: hsl(38 25% 92%);
+  --color-muted-foreground: hsl(25 12% 42%);
+
+  --color-accent: hsl(14 78% 64%);
+  --color-accent-foreground: hsl(25 30% 14%);
+
+  --color-highlight: hsl(42 92% 68%);
+  --color-highlight-foreground: hsl(25 30% 14%);
+
+  --color-sage: hsl(130 22% 55%);
+  --color-sage-foreground: hsl(38 50% 97%);
+
+  --color-destructive: hsl(0 70% 55%);
+  --color-destructive-foreground: hsl(38 50% 97%);
+
+  --color-border: hsl(30 18% 84%);
+  --color-input: hsl(30 18% 84%);
+  --color-ring: hsl(14 78% 64%);
+
+  --radius: 0.875rem;
+  --tracking-eyebrow: 0.28em;
+
+  --color-sidebar: hsl(38 35% 94%);
+  --color-sidebar-foreground: hsl(25 20% 25%);
+  --color-sidebar-border: hsl(30 18% 84%);
+
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Fraunces", ui-serif, Georgia, serif;
 }
 
-/* ── Root variables ─────────────────────────────────────────────── */
-:root {
-  --bg:  var(--color-canvas);
-  --ring: color-mix(in oklch, var(--color-accent) 50%, white);
-  --shadow-xs: 0 1px 2px rgba(0,0,0,0.06);
-  --shadow-sm: 0 1px 4px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.04);
-  --shadow-md: 0 4px 16px rgba(0,0,0,0.10), 0 1px 4px rgba(0,0,0,0.06);
-  --shadow-lg: 0 12px 40px rgba(0,0,0,0.14), 0 4px 16px rgba(0,0,0,0.08);
+@layer base {
+  *, *::before, *::after { border-color: var(--color-border); }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    @apply font-sans antialiased;
+    font-feature-settings: "ss01", "cv11";
+  }
+
+  h1, h2, h3, .font-display {
+    font-family: var(--font-display);
+    font-optical-sizing: auto;
+    letter-spacing: -0.02em;
+  }
 }
 
-/* ── Base reset ─────────────────────────────────────────────────── */
-*, *::before, *::after { box-sizing: border-box; }
+@layer components {
+  .eyebrow {
+    @apply text-xs uppercase font-medium text-muted-foreground;
+    letter-spacing: var(--tracking-eyebrow);
+  }
 
-html, body {
-  height: 100%;
-  margin: 0;
-  padding: 0;
-  background: var(--bg);
-  color: var(--color-foreground);
-  font-family: var(--font-sans), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  font-feature-settings: "ss01" 1, "ss02" 1, "cv10" 1;
-  letter-spacing: -0.01em;
+  .paper-card {
+    @apply bg-card rounded-2xl border border-border;
+    box-shadow: 
+      0 1px 0 var(--color-border), 
+      0 12px 32px -20px color-mix(in srgb, var(--color-foreground) 18%, transparent);
+  }
 }
 
-/* ── Focus ring ─────────────────────────────────────────────────── */
+/* ── Focus rings & Utilities ─────────────────────────────────── */
 .focus-ring { outline: none; }
 .focus-ring:focus-visible {
-  box-shadow: 0 0 0 3px color-mix(in oklch, var(--ring) 45%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-ring) 45%, transparent);
 }
 
 /* ── Scrollbar ──────────────────────────────────────────────────── */
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
-  background: color-mix(in oklch, var(--color-foreground) 10%, transparent);
+  background: color-mix(in srgb, var(--color-foreground) 10%, transparent);
   border-radius: 100px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: color-mix(in oklch, var(--color-foreground) 18%, transparent);
-}
-
-/* ── Line clamp ─────────────────────────────────────────────────── */
-.line-clamp-1 { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 1; overflow: hidden; }
-.line-clamp-2 { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
-
-/* ── Ambient background ─────────────────────────────────────────── */
-main {
-  background-image:
-    radial-gradient(ellipse 60% 40% at 20% 0%, color-mix(in oklch, var(--color-accent) 12%, transparent) 0%, transparent 100%),
-    radial-gradient(ellipse 50% 35% at 85% 100%, color-mix(in oklch, var(--color-accent-2) 10%, transparent) 0%, transparent 100%);
+  background: color-mix(in srgb, var(--color-foreground) 18%, transparent);
 }
 
 /* ── Animations ─────────────────────────────────────────────────── */
@@ -117,7 +125,3 @@ main {
 .animate-fade-in-up { animation: fade-in-up 0.4s ease-out forwards; }
 .animate-scale-in   { animation: scale-in 0.25s ease-out forwards; }
 .animate-pulse-dot  { animation: pulse-dot 1.4s ease-in-out infinite; }
-
-/* Custom scale not in Tailwind default scale */
-.hover-scale-104:hover { transform: scale(1.04); }
-

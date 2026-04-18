@@ -16,24 +16,24 @@ const JEWELRY_DEFAULT = `ultra-realistic luxury product photography, displayed o
 type Stage = 'idle' | 'creating' | 'uploading' | 'generating';
 
 export default function Home() {
-  const [jobs, setJobs]           = useState<Job[]>([]);
+  const [jobs, setJobs] = useState<Job[]>([]);
   const [activeJob, setActiveJob] = useState<Job | null>(null);
-  const [files, setFiles]         = useState<File[]>([]);
-  const [prompt, setPrompt]       = useState('');
-  const [category, setCategory]   = useState<'bags' | 'jewelry'>('bags');
+  const [files, setFiles] = useState<File[]>([]);
+  const [prompt, setPrompt] = useState('');
+  const [category, setCategory] = useState<'bags' | 'jewelry'>('bags');
   const [numImages, setNumImages] = useState(3);
-  const [stage, setStage]         = useState<Stage>('idle');
-  const [error, setError]         = useState<string | null>(null);
+  const [stage, setStage] = useState<Stage>('idle');
+  const [error, setError] = useState<string | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   const pollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const pollAbortRef   = useRef<AbortController | null>(null);
-  const pollErrorsRef  = useRef(0);
-  const isMountedRef   = useRef(true);
+  const pollAbortRef = useRef<AbortController | null>(null);
+  const pollErrorsRef = useRef(0);
+  const isMountedRef = useRef(true);
 
   const stopPolling = useCallback(() => {
     if (pollTimeoutRef.current) { clearTimeout(pollTimeoutRef.current); pollTimeoutRef.current = null; }
-    if (pollAbortRef.current)   { pollAbortRef.current.abort(); pollAbortRef.current = null; }
+    if (pollAbortRef.current) { pollAbortRef.current.abort(); pollAbortRef.current = null; }
     pollErrorsRef.current = 0;
   }, []);
 
@@ -41,23 +41,6 @@ export default function Home() {
     try {
       const all = await listJobs();
       setJobs(all);
-
-      // listJobs returns lightweight rows with empty output_images.
-      // Hydrate the 10 most-recent jobs that lack input/output images sequentially (one at a time)
-      // to avoid Next.js/Turbopack async_hooks Map overflow from concurrent fetches.
-      // This ensures we can display the input image as the thumbnail.
-      const toHydrate = all
-        .filter((j) => !j.input_images?.length && !j.output_images?.length)
-        .slice(0, 4);
-
-      for (const job of toHydrate) {
-        try {
-          const full = await getJob(job.id);
-          setJobs((prev) => prev.map((j) => (j.id === full.id ? full : j)));
-          // Delay to prevent Next.js Turbopack's async_hooks Map from overflowing during dev
-          await new Promise((resolve) => setTimeout(resolve, 50));
-        } catch { /* ignore individual failures */ }
-      }
     } catch { /* silent */ }
   }, []);
 
@@ -186,23 +169,23 @@ export default function Home() {
   };
 
   const stageLabel: Record<Stage, string> = {
-    idle:       'Generate photos',
-    creating:   'Creating job…',
-    uploading:  'Uploading images…',
+    idle: 'Generate photos',
+    creating: 'Creating job…',
+    uploading: 'Uploading images…',
     generating: 'Generating…',
   };
 
-  const isLoading  = stage !== 'idle';
+  const isLoading = stage !== 'idle';
   const showStudio = !activeJob || activeJob.status === 'pending';
 
   return (
     <div className="flex h-screen bg-canvas text-foreground overflow-hidden">
 
       {/* ── Left sidebar ── */}
-      <div 
-        className={`shrink-0 h-full transition-all duration-300 z-10 bg-surface ${isSidebarOpen ? 'w-72 border-r border-border' : 'w-0 overflow-hidden'}`}
+      <div
+        className={`shrink-0 h-full transition-all duration-300 z-10 border-r border-border ${isSidebarOpen ? 'w-[320px] bg-sidebar' : 'w-0 overflow-hidden bg-transparent border-none'}`}
       >
-        <div className="w-72 h-full">
+        <div className="w-[320px] h-full">
           <Sidebar
             jobs={jobs}
             activeJobId={activeJob?.id ?? null}
@@ -227,102 +210,68 @@ export default function Home() {
             <PanelLeftOpen className="w-4 h-4" />
           </button>
         )}
-        <div className="w-full max-w-[640px] mx-auto px-8 py-10 flex flex-col gap-8">
+        <div className="w-full max-w-[640px] mx-auto px-8 py-8 flex flex-col gap-6">
 
           {showStudio ? (
             /* ── Studio form ─────────────────────────────────────────── */
             <>
-              <div>
-                <h1 className="text-[22px] font-bold tracking-tight text-foreground">
-                  Product Photo Studio
+              <div className="">
+                <p className="eyebrow mb-3">№ 001 — Product Photo Studio</p>
+                <h1 className="text-4xl font-display text-foreground leading-[1.1] mb-4">
+                  Transform products into <br />
+                  <span className="italic text-accent">editorial artwork</span>.
                 </h1>
-                <p className="text-[14px] text-muted mt-1.5 leading-relaxed">
-                  Upload your product, describe the scene, and get{' '}
-                  <span className="text-foreground font-medium">{numImages} AI-generated photo{numImages !== 1 ? 's' : ''}</span>{' '}
-                  ready for listings and social.
+                <p className="text-[14.5px] text-muted-foreground leading-relaxed">
+                  Upload your product, describe the scene, and let the studio generate perfectly lit photos for your collection.
                 </p>
               </div>
 
-              <div className="space-y-6">
+              <div className="space-y-4">
                 <UploadZone files={files} onChange={setFiles} />
                 <PromptEditor
                   prompt={prompt}
                   category={category}
                   onPromptChange={setPrompt}
                   onCategoryChange={handleCategoryChange}
+                  numImages={numImages}
+                  onNumImagesChange={(n) => setNumImages(n)}
                 />
-
-                {/* ── Unified number stepper ── */}
-                <div>
-                  <label className="block text-[13px] font-semibold text-foreground mb-2">
-                    Number of photos
-                  </label>
-                  <div className="flex h-10 border border-border rounded-xl overflow-hidden bg-white divide-x divide-border">
-                    <button
-                      id="num-images-decrement"
-                      type="button"
-                      onClick={() => setNumImages((n) => Math.max(1, n - 1))}
-                      disabled={numImages <= 1}
-                      aria-label="Decrease"
-                      className="focus-ring w-10 flex items-center justify-center text-secondary hover:bg-surface-2 hover:text-foreground active:bg-[color:color-mix(in_oklch,var(--color-accent)_8%,transparent)] transition-colors disabled:opacity-30 disabled:cursor-not-allowed text-lg font-light leading-none"
-                    >
-                      −
-                    </button>
-                    <span
-                      id="num-images-value"
-                      className="flex-1 flex items-center justify-center text-[14px] font-semibold tabular-nums text-foreground bg-surface-2/50"
-                    >
-                      {numImages}
-                    </span>
-                    <button
-                      id="num-images-increment"
-                      type="button"
-                      onClick={() => setNumImages((n) => Math.min(10, n + 1))}
-                      disabled={numImages >= 10}
-                      aria-label="Increase"
-                      className="focus-ring w-10 flex items-center justify-center text-secondary hover:bg-surface-2 hover:text-foreground active:bg-[color:color-mix(in_oklch,var(--color-accent)_8%,transparent)] transition-colors disabled:opacity-30 disabled:cursor-not-allowed text-lg font-light leading-none"
-                    >
-                      +
-                    </button>
-                  </div>
-                  <p className="text-[11px] text-muted mt-1.5">1–10 images generated per product</p>
-                </div>
 
                 {/* Error */}
                 {error && (
-                  <div className="flex items-start gap-2.5 px-4 py-3 rounded-xl text-[13px] border
-                    bg-[color:color-mix(in_oklch,var(--color-danger)_8%,transparent)]
-                    border-[color:color-mix(in_oklch,var(--color-danger)_22%,var(--color-border))]"
+                  <div className="flex items-start gap-3 px-5 py-4 rounded-xl text-[13.5px] font-medium border
+                    bg-destructive/10 border-destructive/20 text-destructive"
                   >
-                    <AlertCircle className="w-4 h-4 mt-px shrink-0 text-[color:var(--color-danger)]" />
-                    <span className="text-foreground">{error}</span>
+                    <AlertCircle className="w-4 h-4 mt-px shrink-0" />
+                    <span>{error}</span>
                   </div>
                 )}
 
                 {/* Generate CTA */}
-                <button
-                  id="generate-btn"
-                  type="button"
-                  onClick={handleGenerate}
-                  disabled={isLoading}
-                  className={`focus-ring flex items-center justify-center gap-2 w-full py-3.5 rounded-xl font-semibold text-[14px] transition-all duration-200 ${
-                    isLoading
-                      ? 'cursor-not-allowed bg-surface-2 text-muted border border-border'
-                      : 'bg-accent text-accent-foreground shadow-sm hover:bg-accent-hover hover:shadow-md active:scale-[0.995]'
-                  }`}
-                >
-                  {isLoading ? (
-                    <>
-                      <div className="w-4 h-4 border-2 border-border border-t-[color:var(--color-accent)] rounded-full animate-spin" />
-                      {stageLabel[stage]}
-                    </>
-                  ) : (
-                    <>
-                      <Wand2 className="w-4 h-4" />
-                      {stageLabel[stage]}
-                    </>
-                  )}
-                </button>
+                <div className="pt-2 pb-6">
+                  <button
+                    id="generate-btn"
+                    type="button"
+                    onClick={handleGenerate}
+                    disabled={isLoading}
+                    className={`focus-ring flex items-center justify-center gap-2.5 w-full py-4 rounded-2xl font-bold text-[15px] transition-all duration-200 ${isLoading
+                      ? 'cursor-not-allowed bg-muted text-muted-foreground border border-border shadow-none'
+                      : 'bg-primary text-primary-foreground shadow-lg shadow-primary/20 hover:opacity-90 active:scale-[0.99] border border-primary/20 hover:rotate-[0.5deg]'
+                      }`}
+                  >
+                    {isLoading ? (
+                      <>
+                        <div className="w-5 h-5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
+                        {stageLabel[stage]}
+                      </>
+                    ) : (
+                      <>
+                        <Wand2 className="w-5 h-5" />
+                        {stageLabel[stage]}
+                      </>
+                    )}
+                  </button>
+                </div>
               </div>
             </>
           ) : (
@@ -343,7 +292,7 @@ export default function Home() {
       </main>
 
       {/* ── Right contextual panel ── */}
-      <div className="w-80 shrink-0 h-full border-l border-border bg-surface">
+      <div className="w-[360px] shrink-0 h-full border-l border-border bg-sidebar hidden xl:block">
         <ContextPanel activeJob={activeJob} numImages={numImages} />
       </div>
 

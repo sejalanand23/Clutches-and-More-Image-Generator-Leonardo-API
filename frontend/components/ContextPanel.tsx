@@ -39,18 +39,18 @@ const CATEGORY_DISPLAY: Record<string, string> = {
 };
 
 const STATUS_DISPLAY: Record<string, { label: string; color: string }> = {
-    pending:    { label: 'Pending',    color: 'text-[color:var(--color-warning)]' },
-    processing: { label: 'Generating', color: 'text-[color:var(--color-accent)]' },
-    completed:  { label: 'Completed',  color: 'text-[color:var(--color-success)]' },
-    partial:    { label: 'Partial',    color: 'text-[color:var(--color-warning)]' },
-    failed:     { label: 'Failed',     color: 'text-[color:var(--color-danger)]' },
+    pending:    { label: 'Pending',    color: 'text-muted-foreground' },
+    processing: { label: 'Generating', color: 'text-accent' },
+    completed:  { label: 'Completed',  color: 'text-sage' },
+    partial:    { label: 'Partial',    color: 'text-highlight' },
+    failed:     { label: 'Failed',     color: 'text-destructive' },
 };
 
 function MetaRow({ label, value, valueClass = '' }: { label: string; value: string; valueClass?: string }) {
     return (
-        <div className="flex items-start justify-between gap-3 px-3 py-2.5 border-b border-border last:border-0">
-            <span className="text-[11px] text-muted shrink-0">{label}</span>
-            <span className={`text-[12px] font-medium text-right leading-snug ${valueClass || 'text-foreground'}`}>
+        <div className="flex items-start justify-between gap-3 px-4 py-3 border-b border-border last:border-0 hover:bg-muted/30 transition-colors">
+            <span className="text-[11.5px] font-medium text-muted-foreground shrink-0">{label}</span>
+            <span className={`text-[12px] font-semibold text-right leading-snug ${valueClass || 'text-foreground'}`}>
                 {value}
             </span>
         </div>
@@ -61,32 +61,47 @@ export default function ContextPanel({ activeJob, numImages }: ContextPanelProps
     // ── Studio tips (no active job) ───────────────────────────────────────
     if (!activeJob || activeJob.status === 'pending') {
         return (
-            <aside className="h-full overflow-y-auto px-4 py-6 space-y-6">
-                <div>
-                    <p className="text-[10px] font-semibold text-muted uppercase tracking-wider mb-3">
-                        Tips
+            <aside className="h-full bg-background overflow-y-auto px-5 py-6 space-y-7 border-l border-border">
+                {/* ── Today's Mood Card ── */}
+                <div className="paper-card p-5 space-y-4">
+                    <p className="eyebrow text-center">Today&apos;s Mood</p>
+                    <p className="text-[14px] font-display italic text-muted-foreground leading-relaxed text-center px-1">
+                        &ldquo;Elegant yet effortless. A still life bathed in perfect afternoon light.&rdquo;
                     </p>
-                    <div className="space-y-3">
+                    <div className="flex items-center justify-center gap-1.5 pt-1">
+                        <div className="w-4 h-4 rounded-full bg-background border border-border shadow-xs" />
+                        <div className="w-4 h-4 rounded-full bg-muted border border-border shadow-xs" />
+                        <div className="w-4 h-4 rounded-full bg-secondary border border-border shadow-xs" />
+                        <div className="w-4 h-4 rounded-full bg-sage shadow-xs" />
+                        <div className="w-4 h-4 rounded-full bg-accent shadow-xs" />
+                        <div className="w-4 h-4 rounded-full bg-foreground shadow-xs" />
+                    </div>
+                </div>
+
+                {/* ── Tips Card ── */}
+                <div className="paper-card p-5">
+                    <p className="eyebrow mb-4">Tips from the studio</p>
+                    <div className="space-y-4">
                         {STUDIO_TIPS.map(({ icon: Icon, title, body }) => (
-                            <div key={title} className="flex gap-3">
-                                <div className="w-7 h-7 rounded-lg bg-[color:color-mix(in_oklch,var(--color-accent)_10%,transparent)] border border-[color:color-mix(in_oklch,var(--color-accent)_18%,var(--color-border))] flex items-center justify-center shrink-0 mt-0.5">
-                                    <Icon className="w-3.5 h-3.5 text-[color:var(--color-accent)]" />
+                            <div key={title} className="flex gap-3 group">
+                                <div className="w-8 h-8 rounded-xl bg-sage/10 border border-sage/20 text-sage flex items-center justify-center shrink-0 mt-0.5 group-hover:-rotate-3 transition-transform">
+                                    <Icon className="w-4 h-4" />
                                 </div>
-                                <div>
-                                    <p className="text-[12px] font-semibold text-foreground leading-tight">{title}</p>
-                                    <p className="text-[11px] text-muted mt-0.5 leading-relaxed">{body}</p>
+                                <div className="flex-1 min-w-0">
+                                    <p className="text-[12.5px] font-semibold text-foreground leading-tight">{title}</p>
+                                    <p className="text-[11.5px] text-muted-foreground mt-1 leading-relaxed">
+                                        {body}
+                                    </p>
                                 </div>
                             </div>
                         ))}
                     </div>
                 </div>
 
-                {/* Quick spec */}
+                {/* ── Quick spec ── */}
                 <div>
-                    <p className="text-[10px] font-semibold text-muted uppercase tracking-wider mb-3">
-                        Output spec
-                    </p>
-                    <div className="rounded-xl border border-border bg-white divide-y divide-border overflow-hidden">
+                    <p className="eyebrow mb-2 ml-1">Output spec</p>
+                    <div className="paper-card overflow-hidden">
                         <MetaRow label="Resolution"  value="1080 × 1080 px" />
                         <MetaRow label="Format"      value="JPEG" />
                         <MetaRow label="Photos"      value={`${numImages} per product`} />
@@ -109,13 +124,11 @@ export default function ContextPanel({ activeJob, numImages }: ContextPanelProps
         : '—';
 
     return (
-        <aside className="h-full overflow-y-auto px-4 py-6 space-y-6">
+        <aside className="h-full bg-background overflow-y-auto px-5 py-6 space-y-7 border-l border-border">
             {/* Job details */}
             <div>
-                <p className="text-[10px] font-semibold text-muted uppercase tracking-wider mb-3">
-                    Job details
-                </p>
-                <div className="rounded-xl border border-border bg-white divide-y divide-border overflow-hidden">
+                <p className="eyebrow mb-2 ml-1">Job details</p>
+                <div className="paper-card overflow-hidden">
                     <MetaRow label="Status"   value={statusInfo.label} valueClass={statusInfo.color} />
                     <MetaRow label="Category" value={catDisplay} />
                     <MetaRow label="Photos"   value={countDisplay} />
@@ -129,32 +142,30 @@ export default function ContextPanel({ activeJob, numImages }: ContextPanelProps
             {/* Prompt (read-only) */}
             {activeJob.prompt && (
                 <div>
-                    <p className="text-[10px] font-semibold text-muted uppercase tracking-wider mb-2">
-                        Prompt
-                    </p>
-                    <p className="text-[11px] text-secondary leading-relaxed bg-surface-2 border border-border rounded-xl px-3 py-2.5">
-                        {activeJob.prompt}
-                    </p>
+                    <p className="eyebrow mb-2 ml-1">Prompt</p>
+                    <div className="paper-card p-4">
+                        <p className="text-[12px] font-medium text-foreground leading-relaxed italic font-display">
+                            &ldquo;{activeJob.prompt}&rdquo;
+                        </p>
+                    </div>
                 </div>
             )}
 
             {/* Output thumbnails */}
             {activeJob.output_images?.length > 0 && (
                 <div>
-                    <div className="flex items-center gap-1.5 mb-2">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-[color:var(--color-success)]" />
-                        <p className="text-[10px] font-semibold text-muted uppercase tracking-wider">
-                            Generated
-                        </p>
+                    <div className="flex items-center gap-1.5 mb-3 ml-1">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-sage" />
+                        <p className="eyebrow">Generated</p>
                     </div>
-                    <div className="grid grid-cols-3 gap-1.5">
-                        {activeJob.output_images.slice(0, 9).map((url, i) => (
+                    <div className="grid grid-cols-2 gap-2">
+                        {activeJob.output_images.slice(0, 8).map((url, i) => (
                             // eslint-disable-next-line @next/next/no-img-element
                             <img
                                 key={i}
                                 src={url}
                                 alt=""
-                                className="aspect-square rounded-lg object-cover border border-border"
+                                className="aspect-square w-full rounded-2xl object-cover border border-border shadow-xs"
                             />
                         ))}
                     </div>
