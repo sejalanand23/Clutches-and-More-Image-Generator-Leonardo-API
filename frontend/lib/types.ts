@@ -22,3 +22,17 @@ export interface UploadResponse {
     uploaded: number;
     urls: string[];
 }
+
+/**
+ * Frontend-only derived status.
+ * A job the backend marks 'failed' that still produced some output_images
+ * is "partial" — it ran partially and shouldn't be treated as a full failure.
+ */
+export type DisplayStatus = 'pending' | 'processing' | 'partial' | 'completed' | 'failed';
+
+export function getDisplayStatus(job: Job): DisplayStatus {
+    if (job.status === 'failed' && (job.output_images?.length ?? 0) > 0) {
+        return 'partial';
+    }
+    return job.status;
+}

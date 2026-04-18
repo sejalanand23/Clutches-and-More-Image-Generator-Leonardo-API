@@ -1,8 +1,10 @@
 'use client';
 
+import { useState } from 'react';
 import type { Job } from '@/lib/types';
-import { formatDistanceToNow } from '../lib/dateUtils';
-import { Trash2, StopCircle } from 'lucide-react';
+import { getDisplayStatus } from '@/lib/types';
+import { formatShortDate, formatDistanceToNow } from '../lib/dateUtils';
+import { Trash2, StopCircle, ImageIcon } from 'lucide-react';
 
 interface JobCardProps {
     job: Job;
@@ -12,109 +14,110 @@ interface JobCardProps {
     onCancel: (job: Job, e: React.MouseEvent) => void;
 }
 
-const STATUS_CONFIG = {
-    pending: {
-        label: 'Pending',
-        color:
-            'bg-[color:color-mix(in_oklch,var(--color-warning)_18%,transparent)] text-[color:color-mix(in_oklch,var(--color-warning)_55%,var(--color-foreground))]',
-    },
-    processing: {
-        label: 'Generating',
-        color:
-            'bg-[color:color-mix(in_oklch,var(--color-accent)_16%,transparent)] text-[color:color-mix(in_oklch,var(--color-accent)_55%,var(--color-foreground))]',
-    },
-    completed: {
-        label: 'Done',
-        color:
-            'bg-[color:color-mix(in_oklch,var(--color-success)_18%,transparent)] text-[color:color-mix(in_oklch,var(--color-success)_55%,var(--color-foreground))]',
-    },
-    failed: {
-        label: 'Failed',
-        color:
-            'bg-[color:color-mix(in_oklch,var(--color-danger)_18%,transparent)] text-[color:color-mix(in_oklch,var(--color-danger)_60%,var(--color-foreground))]',
-    },
-} as const;
+const CATEGORY_LABEL: Record<string, string> = {
+    bags: 'Bags',
+    jewelry: 'Jewelry',
+};
+
+const STATUS_BADGE: Record<string, { label: string; cls: string }> = {
+    pending:    { label: 'Pending',    cls: 'bg-[color:color-mix(in_oklch,var(--color-warning)_15%,transparent)] text-[color:color-mix(in_oklch,var(--color-warning)_70%,var(--color-foreground))]' },
+    processing: { label: 'Generating', cls: 'bg-[color:color-mix(in_oklch,var(--color-accent)_14%,transparent)] text-[color:color-mix(in_oklch,var(--color-accent)_70%,var(--color-foreground))]' },
+    completed:  { label: 'Done',       cls: 'bg-[color:color-mix(in_oklch,var(--color-success)_15%,transparent)] text-[color:color-mix(in_oklch,var(--color-success)_65%,var(--color-foreground))]' },
+    partial:    { label: 'Partial',    cls: 'bg-[color:color-mix(in_oklch,var(--color-warning)_15%,transparent)] text-[color:color-mix(in_oklch,var(--color-warning)_70%,var(--color-foreground))]' },
+    failed:     { label: 'Failed',     cls: 'bg-[color:color-mix(in_oklch,var(--color-danger)_12%,transparent)] text-[color:color-mix(in_oklch,var(--color-danger)_60%,var(--color-foreground))]' },
+};
 
 export default function JobCard({ job, isActive, onClick, onDelete, onCancel }: JobCardProps) {
-    const cfg = STATUS_CONFIG[job.status] ?? STATUS_CONFIG.pending;
-    const isLive = job.status === 'pending' || job.status === 'processing';
+    const [imgError, setImgError] = useState(false);
+
+    const displayStatus = getDisplayStatus(job);
+    const isFailed  = displayStatus === 'failed';    // pure failures — no output
+    const isPartial = displayStatus === 'partial';   // stopped early, has some images
+    const isLive    = displayStatus === 'pending' || displayStatus === 'processing';
+
+    const thumbnail = !imgError ? (job.input_images?.[0] || job.output_images?.[0] || undefined) : undefined;
+    const catLabel  = CATEGORY_LABEL[job.category] ?? job.category;
+    const badge     = STATUS_BADGE[displayStatus] ?? STATUS_BADGE.completed;
+
+    // Count label — fall back to num_images when output_images not yet loaded
+    let countLabel: string;
+    if (job.output_images?.length) {
+        countLabel = `${job.output_images.length} photo${job.output_images.length !== 1 ? 's' : ''}`;
+    } else if (job.status === 'completed' && job.num_images) {
+        countLabel = `${job.num_images} photo${job.num_images !== 1 ? 's' : ''}`;
+    } else {
+        countLabel = '';
+    }
 
     return (
-        <div className="relative group/card">
+        <div className={`relative group/card transition-opacity duration-150 ${isFailed ? 'opacity-55 hover:opacity-85' : ''}`}>
             <button
+                type="button"
                 onClick={onClick}
-                className={`focus-ring w-full text-left px-3 py-3 rounded-xl transition-all duration-200 border active:translate-y-px ${isActive
-                        ? 'bg-[color:color-mix(in_oklch,var(--color-accent)_12%,transparent)] border-[color:color-mix(in_oklch,var(--color-accent)_28%,var(--color-border))]'
-                        : 'bg-glass border-border hover:bg-glass-hover hover:border-border'
-                    }`}
+                className={`focus-ring w-full text-left rounded-xl overflow-hidden transition-all duration-150 border ${
+                    isActive
+                        ? 'bg-[color:color-mix(in_oklch,var(--color-accent)_9%,transparent)] border-[color:color-mix(in_oklch,var(--color-accent)_32%,var(--color-border))]'
+                        : 'bg-white border-border hover:border-[color:color-mix(in_oklch,var(--color-accent)_22%,var(--color-border))] hover:shadow-sm'
+                }`}
             >
-                {/* Prompt preview */}
-                <p className="text-sm text-foreground font-medium leading-snug line-clamp-2 mb-2 pr-6">
-                    {job.prompt || 'No prompt'}
-                </p>
+                {/* Thumbnail strip */}
+                <div className={`w-full h-[88px] relative overflow-hidden ${isPartial ? 'bg-[color:color-mix(in_oklch,var(--color-warning)_8%,transparent)]' : 'bg-surface-2'}`}>
+                    {thumbnail ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                            src={thumbnail}
+                            alt=""
+                            className="w-full h-full object-cover"
+                            onError={() => setImgError(true)}
+                        />
+                    ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                            <ImageIcon className="w-6 h-6 text-border" />
+                        </div>
+                    )}
 
-                <div className="flex items-center justify-between gap-2">
-                    {/* Status badge */}
-                    <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${cfg.color}`}>
-                        {cfg.label}
-                        {job.status === 'processing' && (
-                            <span className="inline-block ml-1 animate-pulse">●</span>
-                        )}
-                    </span>
-
-                    {/* Category + time */}
-                    <span suppressHydrationWarning className="text-[11px] text-faint shrink-0">
-                        {job.category} · {formatDistanceToNow(job.created_at)}
-                    </span>
+                    {/* Status badge — top-right overlay */}
+                    <div className="absolute top-2 right-2">
+                        <span className={`inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full backdrop-blur-sm ${badge.cls}`}>
+                            {isLive && <span className="w-1 h-1 rounded-full bg-current animate-pulse-dot" />}
+                            {badge.label}
+                        </span>
+                    </div>
                 </div>
 
-                {/* Thumbnail strip */}
-                {job.output_images?.length > 0 && (
-                    <div className="flex gap-1 mt-2 overflow-hidden">
-                        {job.output_images.slice(0, 3).map((url, i) => (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img
-                                key={i}
-                                src={url}
-                                alt=""
-                                className="w-10 h-10 rounded-md object-cover opacity-70 group-hover/card:opacity-100 transition-opacity"
-                            />
-                        ))}
-                        {job.output_images.length > 3 && (
-                            <div className="w-10 h-10 rounded-md bg-glass-hover flex items-center justify-center text-[11px] text-faint">
-                                +{job.output_images.length - 3}
-                            </div>
-                        )}
+                {/* Card body */}
+                <div className="px-3 py-2.5">
+                    <div className="flex items-center justify-between gap-2">
+                        <span className="text-[11px] font-semibold text-secondary bg-surface-2 border border-border px-2 py-0.5 rounded-full">
+                            {catLabel}
+                        </span>
+                        <span suppressHydrationWarning className="text-[11px] text-muted shrink-0">
+                            {formatShortDate(job.created_at)}
+                        </span>
                     </div>
-                )}
+                    <p suppressHydrationWarning className="text-[12px] text-muted mt-1.5 leading-tight">
+                        {countLabel || formatDistanceToNow(job.created_at)}
+                    </p>
+                </div>
             </button>
 
-            {/* Action buttons — hover-reveal top-right */}
-            <div className="absolute top-2 right-2 flex items-center gap-0.5 opacity-0 group-hover/card:opacity-100 transition-opacity duration-150">
-                {/* Stop button — only for live jobs */}
+            {/* Hover-reveal action buttons on thumbnail */}
+            <div className="absolute top-2 left-2 flex items-center gap-1 opacity-0 group-hover/card:opacity-100 transition-opacity duration-150">
                 {isLive && (
                     <button
                         type="button"
-                        title="Stop job"
+                        title="Stop generation"
                         onClick={(e) => onCancel(job, e)}
-                        className="focus-ring w-6 h-6 rounded-md flex items-center justify-center
-                          text-[color:color-mix(in_oklch,var(--color-warning)_70%,var(--color-foreground))]
-                          hover:bg-[color:color-mix(in_oklch,var(--color-warning)_16%,transparent)]
-                          transition-colors"
+                        className="focus-ring w-6 h-6 rounded-lg bg-black/30 backdrop-blur-sm flex items-center justify-center text-white/80 hover:text-white hover:bg-black/50 transition-colors"
                     >
                         <StopCircle className="w-3.5 h-3.5" />
                     </button>
                 )}
-
-                {/* Delete button */}
                 <button
                     type="button"
-                    title="Delete job"
+                    title="Delete"
                     onClick={(e) => onDelete(job, e)}
-                    className="focus-ring w-6 h-6 rounded-md flex items-center justify-center
-                      text-[color:color-mix(in_oklch,var(--color-danger)_65%,var(--color-foreground))]
-                      hover:bg-[color:color-mix(in_oklch,var(--color-danger)_14%,transparent)]
-                      transition-colors"
+                    className="focus-ring w-6 h-6 rounded-lg bg-black/30 backdrop-blur-sm flex items-center justify-center text-white/80 hover:text-white hover:bg-black/50 transition-colors"
                 >
                     <Trash2 className="w-3.5 h-3.5" />
                 </button>

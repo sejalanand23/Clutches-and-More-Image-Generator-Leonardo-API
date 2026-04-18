@@ -1,16 +1,21 @@
 'use client';
 
-import { Sparkles } from 'lucide-react';
-
-const BAGS_PLACEHOLDER = `ultra-realistic luxury product photography, placed on a perfectly styled surface in a beautifully lit environment, professional commercial studio photography, highly detailed, sharp focus`;
-const JEWELRY_PLACEHOLDER = `ultra-realistic luxury product photography, displayed on an elegant surface in a beautifully lit environment, professional commercial studio photography, highly detailed, sharp focus, macro detail`;
-
 interface PromptEditorProps {
     prompt: string;
     category: 'bags' | 'jewelry';
     onPromptChange: (v: string) => void;
     onCategoryChange: (v: 'bags' | 'jewelry') => void;
 }
+
+const PLACEHOLDERS = {
+    bags: `Describe the scene — e.g., "warm studio light, marble surface, editorial mood"`,
+    jewelry: `Describe the scene — e.g., "black velvet background, macro, jeweller lighting"`,
+} as const;
+
+const CATEGORIES: { value: 'bags' | 'jewelry'; label: string }[] = [
+    { value: 'bags', label: 'Bags & Clutches' },
+    { value: 'jewelry', label: 'Jewelry' },
+];
 
 export default function PromptEditor({
     prompt,
@@ -20,43 +25,51 @@ export default function PromptEditor({
 }: PromptEditorProps) {
     return (
         <div className="space-y-3">
-            {/* Category tabs */}
-            <div className="flex gap-1 p-1 bg-glass rounded-xl w-fit border border-border">
-                {(['bags', 'jewelry'] as const).map((cat) => (
-                    <button
-                        key={cat}
-                        type="button"
-                        onClick={() => onCategoryChange(cat)}
-                        aria-pressed={category === cat}
-                        className={`focus-ring px-4 py-1.5 rounded-lg text-sm font-medium capitalize transition-all duration-200 active:translate-y-px ${category === cat
-                                ? 'bg-accent text-accent-foreground shadow-sm'
-                                : 'text-faint hover:text-foreground'
+            {/* Section label */}
+            <div>
+                <label className="block text-[13px] font-semibold text-foreground mb-2">
+                    Product category
+                </label>
+                {/* Segmented control */}
+                <div className="flex gap-1 p-1 bg-surface-2 rounded-xl border border-border w-fit">
+                    {CATEGORIES.map(({ value, label }) => (
+                        <button
+                            key={value}
+                            type="button"
+                            onClick={() => onCategoryChange(value)}
+                            aria-pressed={category === value}
+                            className={`focus-ring px-4 py-1.5 rounded-lg text-[13px] font-medium transition-all duration-200 active:scale-[0.98] ${
+                                category === value
+                                    ? 'bg-white text-foreground shadow-sm border border-border'
+                                    : 'text-faint hover:text-secondary'
                             }`}
-                    >
-                        {cat === 'bags' ? '👜 Bags' : '💍 Jewelry'}
-                    </button>
-                ))}
-            </div>
-
-            {/* Prompt textarea */}
-            <div className="relative">
-                <textarea
-                    value={prompt}
-                    onChange={(e) => onPromptChange(e.target.value)}
-                    placeholder={category === 'bags' ? BAGS_PLACEHOLDER : JEWELRY_PLACEHOLDER}
-                    rows={3}
-                    className="focus-ring w-full bg-glass border border-border rounded-xl px-4 py-3 text-sm text-foreground placeholder-faint resize-none transition-all
-                      focus:bg-glass-hover focus:border-[color:color-mix(in_oklch,var(--color-accent)_40%,var(--color-border))]"
-                />
-                <div className="absolute bottom-3 right-3 opacity-30">
-                    <Sparkles className="w-4 h-4 text-[color:color-mix(in_oklch,var(--color-accent)_40%,var(--color-muted))]" />
+                        >
+                            {label}
+                        </button>
+                    ))}
                 </div>
             </div>
 
-            <p className="text-xs text-faint">
-                Leave blank to use the default {category} prompt — or write your own.
-                Pose &amp; angle variations are added automatically.
-            </p>
+            {/* Prompt */}
+            <div>
+                <label className="block text-[13px] font-semibold text-foreground mb-2">
+                    Scene description
+                    <span className="ml-1.5 text-[11px] font-normal text-muted">(optional)</span>
+                </label>
+                <textarea
+                    value={prompt}
+                    onChange={(e) => onPromptChange(e.target.value)}
+                    placeholder={PLACEHOLDERS[category]}
+                    rows={3}
+                    className="focus-ring w-full bg-white border border-border rounded-xl px-4 py-3 text-[13px] text-foreground placeholder:text-muted resize-none transition-all leading-relaxed
+                      hover:border-[color:color-mix(in_oklch,var(--color-accent)_30%,var(--color-border))]
+                      focus:border-[color:color-mix(in_oklch,var(--color-accent)_50%,var(--color-border))]
+                      focus:shadow-[0_0_0_3px_color-mix(in_oklch,var(--color-accent)_12%,transparent)]"
+                />
+                <p className="text-[11px] text-muted mt-1.5 leading-relaxed">
+                    Leave blank to use the default {category === 'bags' ? 'bags' : 'jewelry'} prompt. Pose &amp; angle variations are added automatically.
+                </p>
+            </div>
         </div>
     );
 }

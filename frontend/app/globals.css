@@ -1,110 +1,123 @@
 @import "tailwindcss";
 
 @theme {
-  /* Neutrals (slightly tinted for cohesion) */
-  --color-canvas: oklch(0.985 0.006 255);
-  --color-surface: oklch(0.995 0.004 255);
-  --color-foreground: oklch(0.18 0.03 260);
-  --color-faint: oklch(0.48 0.03 260);
-  --color-muted: oklch(0.6 0.02 260);
-  --color-border: oklch(0.9 0.01 260);
+  /* ── Neutrals ───────────────────────────────────────────────── */
+  --color-canvas:      oklch(0.978 0.007 255);
+  --color-surface:     oklch(0.993 0.004 255);
+  --color-surface-2:   oklch(0.972 0.008 255);
+  --color-foreground:  oklch(0.16 0.028 260);
+  --color-secondary:   oklch(0.38 0.025 260);
+  --color-faint:       oklch(0.54 0.020 260);
+  --color-muted:       oklch(0.65 0.015 260);
+  --color-border:      oklch(0.88 0.012 260);
+  --color-border-2:    oklch(0.92 0.008 260);
 
-  /* Accent (playful, used sparingly) */
-  --color-accent: oklch(0.6 0.2 285);
-  --color-accent-foreground: oklch(0.985 0.01 260);
-  --color-accent-2: oklch(0.72 0.16 25);
+  /* ── Accent — vivid indigo ──────────────────────────────────── */
+  --color-accent:          oklch(0.55 0.22 285);
+  --color-accent-hover:    oklch(0.50 0.24 285);
+  --color-accent-subtle:   oklch(0.94 0.06 285);
+  --color-accent-foreground: oklch(0.99 0.005 260);
 
-  /* Semantic */
-  --color-danger: oklch(0.62 0.2 25);
-  --color-success: oklch(0.66 0.16 155);
-  --color-warning: oklch(0.78 0.16 85);
+  /* ── Secondary accent — coral ───────────────────────────────── */
+  --color-accent-2:        oklch(0.68 0.18 25);
+  --color-accent-2-subtle: oklch(0.95 0.05 25);
 
-  /* Translucent surfaces */
-  --color-glass: color-mix(in oklch, var(--color-surface) 72%, transparent);
-  --color-glass-hover: color-mix(in oklch, var(--color-surface) 86%, transparent);
+  /* ── Semantic ───────────────────────────────────────────────── */
+  --color-danger:   oklch(0.60 0.20 25);
+  --color-success:  oklch(0.60 0.16 155);
+  --color-warning:  oklch(0.72 0.16 85);
+
+  /* ── Translucent surfaces ───────────────────────────────────── */
+  --color-glass:       color-mix(in oklch, var(--color-surface) 70%, transparent);
+  --color-glass-hover: color-mix(in oklch, var(--color-surface) 88%, transparent);
 }
 
+/* ── Root variables ─────────────────────────────────────────────── */
 :root {
-  --bg: var(--color-canvas);
-  --ring: color-mix(in oklch, var(--color-accent) 55%, white);
+  --bg:  var(--color-canvas);
+  --ring: color-mix(in oklch, var(--color-accent) 50%, white);
+  --shadow-xs: 0 1px 2px rgba(0,0,0,0.06);
+  --shadow-sm: 0 1px 4px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.10), 0 1px 4px rgba(0,0,0,0.06);
+  --shadow-lg: 0 12px 40px rgba(0,0,0,0.14), 0 4px 16px rgba(0,0,0,0.08);
 }
 
-* {
-  box-sizing: border-box;
-}
+/* ── Base reset ─────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
 
-html,
-body {
+html, body {
   height: 100%;
   margin: 0;
   padding: 0;
   background: var(--bg);
   color: var(--color-foreground);
-  font-family: var(--font-sans), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
-    "Segoe UI", sans-serif;
+  font-family: var(--font-sans), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   font-feature-settings: "ss01" 1, "ss02" 1, "cv10" 1;
+  letter-spacing: -0.01em;
 }
 
-/* Crisp but friendly focus, for keyboard users */
-.focus-ring {
-  outline: none;
-}
+/* ── Focus ring ─────────────────────────────────────────────────── */
+.focus-ring { outline: none; }
 .focus-ring:focus-visible {
-  box-shadow: 0 0 0 4px color-mix(in oklch, var(--ring) 35%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in oklch, var(--ring) 45%, transparent);
 }
 
-/* Scrollbar */
-::-webkit-scrollbar {
-  width: 4px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
+/* ── Scrollbar ──────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
-  background: color-mix(in oklch, var(--color-foreground) 12%, transparent);
-  border-radius: 2px;
+  background: color-mix(in oklch, var(--color-foreground) 10%, transparent);
+  border-radius: 100px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: color-mix(in oklch, var(--color-foreground) 20%, transparent);
+  background: color-mix(in oklch, var(--color-foreground) 18%, transparent);
 }
 
-/* Line clamp */
-.line-clamp-2 {
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  overflow: hidden;
-}
+/* ── Line clamp ─────────────────────────────────────────────────── */
+.line-clamp-1 { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 1; overflow: hidden; }
+.line-clamp-2 { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
 
-/* Subtle grid background on main */
+/* ── Ambient background ─────────────────────────────────────────── */
 main {
   background-image:
-    radial-gradient(circle at 22% 10%, color-mix(in oklch, var(--color-accent) 18%, transparent) 0%, transparent 52%),
-    radial-gradient(circle at 82% 92%, color-mix(in oklch, var(--color-accent-2) 16%, transparent) 0%, transparent 55%);
+    radial-gradient(ellipse 60% 40% at 20% 0%, color-mix(in oklch, var(--color-accent) 12%, transparent) 0%, transparent 100%),
+    radial-gradient(ellipse 50% 35% at 85% 100%, color-mix(in oklch, var(--color-accent-2) 10%, transparent) 0%, transparent 100%);
 }
 
+/* ── Animations ─────────────────────────────────────────────────── */
 @keyframes shimmer {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
 @keyframes fade-in-up {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
-.animate-shimmer {
-  animation: shimmer 2s infinite ease-in-out;
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.96); }
+  to   { opacity: 1; transform: scale(1); }
 }
 
-.animate-fade-in-up {
-  animation: fade-in-up 0.5s ease-out forwards;
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.35; }
 }
+
+.animate-shimmer    { animation: shimmer 1.8s infinite ease-in-out; }
+.animate-fade-in    { animation: fade-in 0.3s ease-out forwards; }
+.animate-fade-in-up { animation: fade-in-up 0.4s ease-out forwards; }
+.animate-scale-in   { animation: scale-in 0.25s ease-out forwards; }
+.animate-pulse-dot  { animation: pulse-dot 1.4s ease-in-out infinite; }
+
+/* Custom scale not in Tailwind default scale */
+.hover-scale-104:hover { transform: scale(1.04); }
+
