@@ -11,15 +11,15 @@ from __future__ import annotations
 from pathlib import Path
 
 import numpy as np
-from PIL import Image, ImageChops, ImageDraw, ImageFont, ImageOps
+from PIL import Image, ImageChops, ImageDraw, ImageFont, ImageOps, ImageStat
 
 from src.logger import get_logger
 
 log = get_logger()
 
 _WATERMARK_TEXT = "© Clutches and More"
-_FONT_SIZE = 48
-_PADDING = 30          # pixels from bottom-right edge
+_FONT_SIZE = 80
+_PADDING = 0           # redundant now that we center on product
 _DARK_THRESHOLD = 128  # average luminance below this → background is dark
 
 
@@ -35,6 +35,48 @@ def _region_brightness(base: Image.Image, x: int, y: int, wm_w: int, wm_h: int) 
     region = base.crop((x, y, x + wm_w, y + wm_h)).convert("L")
     arr = np.array(region, dtype=np.float32)
     return float(arr.mean())
+
+
+def _find_product_center(base: Image.Image) -> tuple[int, int]:
+    """
+    Heuristic to find the center of the product.
+    Divides the image into a grid and finds the cell with the highest
+    standard deviation of luminance (most detail/texture).
+    """
+    w, h = base.size
+    gray = base.convert("L")
+    grid_size = 8
+    cell_w = w // grid_size
+    cell_h = h // grid_size
+
+    best_val = -1
+    best_center = (w // 2, h // 2)
+
+    for i in range(grid_size):
+        for j in range(grid_size):
+            # Calculate variance in this cell
+            left = i * cell_w
+            top = j * cell_h
+            right = (i + 1) * cell_w
+            bottom = (j + 1) * cell_h
+            
+            # Crop and calculate stats
+            cell = gray.crop((left, top, right, bottom))
+            stat = ImageStat.Stat(cell)
+            std_dev = stat.stddev[0]
+            
+            # Weighted by distance to center to favor central products
+            dx = (i - grid_size / 2) / grid_size
+            dy = (j - grid_size / 2) / grid_size
+            centrality = 1.0 - (dx*dx + dy*dy)**0.5
+            
+            score = std_dev * centrality
+            
+            if score > best_val:
+                best_val = score
+                best_center = (left + cell_w // 2, top + cell_h // 2)
+                
+    return best_center
 
 
 def _adapt_wm_image(wm: Image.Image, brightness: float) -> Image.Image:
@@ -120,17 +162,22 @@ def apply_watermark(
     if watermark_path and Path(watermark_path).is_file():
         wm = Image.open(watermark_path).convert("RGBA")
 
-        # Scale watermark to at most 40% of base image width
-        max_wm_w = int(w * 0.40)
-        if wm.width > max_wm_w:
-            ratio = max_wm_w / wm.width
-            wm = wm.resize(
-                (max_wm_w, int(wm.height * ratio)),
-                Image.LANCZOS,
-            )
+        # Force watermark to 80% of base image width (upscale or downscale)
+        target_wm_w = int(w * 0.80)
+        ratio = target_wm_w / wm.width
+        wm = wm.resize(
+            (target_wm_w, int(wm.height * ratio)),
+            Image.LANCZOS,
+        )
 
-        x = w - wm.width - padding
-        y = h - wm.height - padding
+        # Smart placement: find product center
+        pc_x, pc_y = _find_product_center(base)
+        x = pc_x - wm.width // 2
+        y = pc_y - wm.height // 2
+
+        # Ensure it stays within bounds
+        x = max(0, min(x, w - wm.width))
+        y = max(0, min(y, h - wm.height))
 
         # Adaptive colour: sample the background under the watermark placement
         brightness = _region_brightness(base, x, y, wm.width, wm.height)
@@ -160,8 +207,14 @@ def apply_watermark(
         text_w = bbox[2] - bbox[0]
         text_h = bbox[3] - bbox[1]
 
-        x = w - text_w - padding
-        y = h - text_h - padding
+        # Smart placement: find product center
+        pc_x, pc_y = _find_product_center(base)
+        x = pc_x - text_w // 2
+        y = pc_y - text_h // 2
+
+        # Ensure it stays within bounds
+        x = max(0, min(x, w - text_w))
+        y = max(0, min(y, h - text_h))
 
         # Sample brightness of the text region
         brightness = _region_brightness(base, x, y, text_w, text_h)
