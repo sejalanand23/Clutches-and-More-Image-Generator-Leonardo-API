@@ -1,0 +1,11 @@
+.git
+.venv
+__pycache__
+*.pyc
+.env
+.next
+node_modules
+pipeline.log
+input/
+output/
+frontend/
