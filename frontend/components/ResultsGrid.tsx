@@ -319,7 +319,7 @@ export default function ResultsGrid({ job }: ResultsGridProps) {
                     <img
                         src={lightboxImages[lightboxIndex]}
                         alt="Preview"
-                        className="max-w-[calc(100vw-120px)] max-h-[calc(100vh-100px)] rounded-2xl shadow-2xl object-contain animate-scale-in"
+                        className="max-w-[calc(100vw-32px)] lg:max-w-[calc(100vw-120px)] max-h-[calc(100vh-80px)] lg:max-h-[calc(100vh-100px)] rounded-2xl shadow-2xl object-contain animate-scale-in"
                         onClick={(e) => e.stopPropagation()}
                     />
                 </div>

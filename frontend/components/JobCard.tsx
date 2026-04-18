@@ -82,8 +82,8 @@ export default function JobCard({ job, isActive, onClick, onDelete, onCancel }: 
                 </div>
             </button>
 
-            {/* Hover-reveal action buttons on the right edge */}
-            <div className="absolute top-1/2 right-2 -translate-y-1/2 flex items-center gap-1 opacity-0 group-hover/card:opacity-100 transition-opacity duration-150 pr-2">
+            {/* Hover-reveal action buttons (visible by default on mobile) */}
+            <div className="absolute top-1/2 right-2 -translate-y-1/2 flex items-center gap-1 opacity-100 lg:opacity-0 lg:group-hover/card:opacity-100 transition-opacity duration-150 pr-2">
                 {isLive && (
                     <button
                         type="button"

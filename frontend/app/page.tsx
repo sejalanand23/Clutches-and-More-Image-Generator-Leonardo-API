@@ -8,7 +8,7 @@ import ResultsGrid from '@/components/ResultsGrid';
 import ContextPanel from '@/components/ContextPanel';
 import type { Job } from '@/lib/types';
 import { createJob, uploadImages, triggerGeneration, getJob, listJobs, deleteJob, cancelJob } from '@/lib/api';
-import { Wand2, AlertCircle, ArrowLeft, PanelLeftOpen } from 'lucide-react';
+import { Wand2, AlertCircle, ArrowLeft, PanelLeftOpen, Menu, Sparkles } from 'lucide-react';
 
 const BAGS_DEFAULT = `ultra-realistic luxury product photography, placed on a perfectly styled surface in a beautifully lit environment, professional commercial studio photography, highly detailed, sharp focus, depth of field`;
 const JEWELRY_DEFAULT = `ultra-realistic luxury product photography, displayed on an elegant surface in a beautifully lit environment, professional commercial studio photography, highly detailed, sharp focus, macro detail`;
@@ -24,7 +24,8 @@ export default function Home() {
   const [numImages, setNumImages] = useState(3);
   const [stage, setStage] = useState<Stage>('idle');
   const [error, setError] = useState<string | null>(null);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   const pollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pollAbortRef = useRef<AbortController | null>(null);
@@ -44,6 +45,21 @@ export default function Home() {
     } catch { /* silent */ }
   }, []);
 
+  // Responsive logic
+  useEffect(() => {
+    const handleResize = () => {
+      const mobile = window.innerWidth < 1024;
+      setIsMobile(mobile);
+      if (!mobile) {
+        setIsSidebarOpen(true);
+      } else {
+        setIsSidebarOpen(false);
+      }
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => { refreshJobs(); }, [refreshJobs]);
 
@@ -117,6 +133,7 @@ export default function Home() {
       setJobs((prev) => [pendingJob, ...prev]);
       setFiles([]);
       setPrompt('');
+      if (isMobile) setIsSidebarOpen(false);
       startPolling(job_id);
     } catch (err: unknown) {
       setStage('idle');
@@ -127,6 +144,7 @@ export default function Home() {
   const handleJobClick = async (job: Job) => {
     setError(null);
     setActiveJob(job);
+    if (isMobile) setIsSidebarOpen(false);
     if (job.status === 'processing' || job.status === 'pending') {
       setStage('generating'); startPolling(job.id); return;
     }
@@ -166,6 +184,7 @@ export default function Home() {
   const handleNewSession = () => {
     setActiveJob(null); setFiles([]); setPrompt('');
     setNumImages(3); setError(null); setStage('idle'); stopPolling();
+    if (isMobile) setIsSidebarOpen(false);
   };
 
   const stageLabel: Record<Stage, string> = {
@@ -179,11 +198,23 @@ export default function Home() {
   const showStudio = !activeJob || activeJob.status === 'pending';
 
   return (
-    <div className="flex h-screen bg-canvas text-foreground overflow-hidden">
+    <div className="flex h-screen bg-canvas text-foreground overflow-hidden relative">
+
+      {/* ── Mobile Sidebar Backdrop ── */}
+      {isMobile && isSidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 transition-opacity duration-300 animate-fade-in"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
 
       {/* ── Left sidebar ── */}
       <div
-        className={`shrink-0 h-full transition-all duration-300 z-10 border-r border-border ${isSidebarOpen ? 'w-[320px] bg-sidebar' : 'w-0 overflow-hidden bg-transparent border-none'}`}
+        className={`
+          fixed inset-y-0 left-0 z-50 lg:static lg:block
+          transition-all duration-300 ease-in-out border-r border-border
+          ${isSidebarOpen ? 'translate-x-0 w-[320px] bg-sidebar shadow-2xl lg:shadow-none' : '-translate-x-full lg:translate-x-0 w-0 lg:w-0 overflow-hidden bg-transparent border-none'}
+        `}
       >
         <div className="w-[320px] h-full">
           <Sidebar
@@ -200,7 +231,25 @@ export default function Home() {
 
       {/* ── Center main content ── */}
       <main className="flex-1 flex flex-col h-full overflow-y-auto min-w-0 relative">
-        {!isSidebarOpen && (
+        {/* Mobile Header */}
+        <div className="lg:hidden shrink-0 flex items-center justify-between px-5 py-4 bg-sidebar border-b border-border sticky top-0 z-30">
+          <div className="flex items-center gap-2.5">
+            <div className="w-2.5 h-2.5 rounded-full bg-[color:var(--color-accent)] shrink-0" />
+            <p className="text-[14px] font-bold text-foreground leading-tight tracking-tight">
+              Clutches &amp; More
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setIsSidebarOpen(true)}
+            className="w-10 h-10 flex items-center justify-center rounded-xl bg-surface border border-border text-muted hover:text-foreground transition-colors"
+          >
+            <Menu className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Desktop Sidebar Toggle */}
+        {!isSidebarOpen && !isMobile && (
           <button
             type="button"
             title="Open sidebar"
@@ -210,18 +259,19 @@ export default function Home() {
             <PanelLeftOpen className="w-4 h-4" />
           </button>
         )}
-        <div className="w-full max-w-[640px] mx-auto px-8 py-8 flex flex-col gap-6">
+
+        <div className="w-full max-w-[640px] mx-auto px-5 lg:px-8 py-6 lg:py-8 flex flex-col gap-6">
 
           {showStudio ? (
             /* ── Studio form ─────────────────────────────────────────── */
             <>
               <div className="">
                 <p className="eyebrow mb-3">№ 001 — Product Photo Studio</p>
-                <h1 className="text-4xl font-display text-foreground leading-[1.1] mb-4">
-                  Transform products into <br />
+                <h1 className="text-3xl lg:text-4xl font-display text-foreground leading-[1.1] mb-4">
+                  Transform products into <br className="hidden sm:block" />
                   <span className="italic text-accent">editorial artwork</span>.
                 </h1>
-                <p className="text-[14.5px] text-muted-foreground leading-relaxed">
+                <p className="text-[14px] lg:text-[14.5px] text-muted-foreground leading-relaxed">
                   Upload your product, describe the scene, and let the studio generate perfectly lit photos for your collection.
                 </p>
               </div>
