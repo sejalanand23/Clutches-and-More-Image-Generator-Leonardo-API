@@ -23,6 +23,7 @@ export default function PromptEditor({
     prompt,
     category,
     onPromptChange,
+    onCategoryChange,
     numImages,
     onNumImagesChange,
 }: PromptEditorProps) {
