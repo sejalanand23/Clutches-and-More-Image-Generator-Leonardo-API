@@ -18,8 +18,8 @@ from src.logger import get_logger
 log = get_logger()
 
 _WATERMARK_TEXT = "© Clutches and More"
-_FONT_SIZE = 28
-_PADDING = 20          # pixels from bottom-right edge
+_FONT_SIZE = 48
+_PADDING = 30          # pixels from bottom-right edge
 _DARK_THRESHOLD = 128  # average luminance below this → background is dark
 
 
@@ -120,8 +120,8 @@ def apply_watermark(
     if watermark_path and Path(watermark_path).is_file():
         wm = Image.open(watermark_path).convert("RGBA")
 
-        # Scale watermark to at most 25% of base image width
-        max_wm_w = int(w * 0.25)
+        # Scale watermark to at most 40% of base image width
+        max_wm_w = int(w * 0.40)
         if wm.width > max_wm_w:
             ratio = max_wm_w / wm.width
             wm = wm.resize(
