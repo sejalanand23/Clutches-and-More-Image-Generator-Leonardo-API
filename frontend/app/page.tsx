@@ -403,21 +403,6 @@ export default function Home() {
                 </button>
               </div>
 
-              {/* Input images row */}
-              {activeJob.input_images?.length > 0 && (
-                <div className="flex gap-2 overflow-x-auto pb-1">
-                  {activeJob.input_images.map((url, i) => (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      key={i}
-                      src={url}
-                      alt="Input"
-                      className="w-16 h-16 shrink-0 rounded-xl object-cover opacity-60"
-                    />
-                  ))}
-                </div>
-              )}
-
               {/* Results */}
               <ResultsGrid job={activeJob} />
             </>
