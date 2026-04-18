@@ -122,7 +122,7 @@ def get_prompts(
     while len(chosen) < n:
         chosen.append(rng.choice(modifiers))
 
-    return [f"{base}, {mod}" for mod in chosen[:n]]
+    return [f"{mod}, {base}" for mod in chosen[:n]]
 
 
 def get_scene_prompts(
@@ -163,4 +163,4 @@ def get_scene_prompts(
     while len(chosen) < n:
         chosen.append(rng.choice(modifiers))
 
-    return [f"{base}, {mod}" for mod in chosen[:n]]
+    return [f"{mod}, {base}" for mod in chosen[:n]]
