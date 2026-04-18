@@ -5,34 +5,25 @@ api_key = os.getenv("LEONARDO_API_KEY")
 
 headers = {
     "Authorization": f"Bearer {api_key}",
-    "Accept": "application/json",
-    "Content-Type": "application/json"
+    "Accept": "application/json"
 }
-image_url = "https://cdn.leonardo.ai/users/56e90e76-b3ed-4bf1-942c-5a064bfc4a22/initImages/d6e01676-a661-4875-9e27-585b14e86a4f.jpeg"
-prompt = "commercial studio photography, beautifully lit environment, highly detailed, sharp focus, marble countertop"
 
-# Omit creativeBrief
-payload = {
-    "blueprintVersionId": "ef51b59d-1734-4c92-abb0-6f66a4e33cb3",
-    "input": {
-        "public": False,
-        "nodeInputs": [
-            {
-                "nodeId": "c5cef162-0d59-4a13-a8aa-1ae881e62f85",
-                "settingName": "imageUrl",
-                "value": image_url
-            },
-            {
-                "nodeId": "238ea0da-49ef-45d7-bf67-7066eab6a547",
-                "settingName": "textVariables",
-                "value": [
-                    {"name": "environment", "value": prompt[:200]}
-                ]
-            }
-        ]
-    }
-}
-resp = requests.post("https://cloud.leonardo.ai/api/rest/v1/blueprint-executions", headers=headers, json=payload)
-print(resp.status_code, resp.text)
-if resp.ok and not isinstance(resp.json(), list):
-    print("SUCCESS")
+# Get user id
+me_resp = requests.get("https://cloud.leonardo.ai/api/rest/v1/me", headers=headers)
+user_id = me_resp.json()["user_details"][0]["user"]["id"]
+
+# Fetch last 15 generations
+url = f"https://cloud.leonardo.ai/api/rest/v1/generations/user/{user_id}?limit=15"
+resp = requests.get(url, headers=headers)
+gens = resp.json().get("generations", [])
+
+# Print details of the recent ones to compare UI vs API
+for i, g in enumerate(gens):
+    print(f"--- Generation {i} ---")
+    print("Created At:", g.get("createdAt"))
+    print("Model ID:", g.get("modelId"))
+    print("Prompt:", g.get("prompt"))
+    print("Status:", g.get("status"))
+    print("Elements:", json.dumps(g.get("generation_elements", [])))
+    print("---")
+    
