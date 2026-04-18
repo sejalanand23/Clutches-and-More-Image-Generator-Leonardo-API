@@ -143,11 +143,19 @@ async def list_jobs():
     """Return all jobs ordered by created_at DESC."""
     result = (
         supabase.table("jobs")
-        .select("*")
+        .select("*, images(type, url)")
         .order("created_at", desc=True)
         .execute()
     )
-    return {"jobs": result.data}
+    
+    jobs = []
+    for job in result.data:
+        images = job.pop("images", None) or []
+        job["input_images"] = [_sign_url(r["url"], INPUT_BUCKET) for r in images if r["type"] == "input"]
+        job["output_images"] = [_sign_url(r["url"], OUTPUT_BUCKET) for r in images if r["type"] == "output"]
+        jobs.append(job)
+
+    return {"jobs": jobs}
 
 
 @router.post("/job/{job_id}/cancel")
