@@ -231,7 +231,8 @@ async def download_zip(job_id: str):
     with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zf:
         async with httpx.AsyncClient(timeout=60) as client:
             for idx, row in enumerate(output_rows, start=1):
-                resp = await client.get(row["url"])
+                signed_url = _sign_url(row["url"], OUTPUT_BUCKET)
+                resp = await client.get(signed_url)
                 resp.raise_for_status()
                 zf.writestr(f"img_{idx}.jpg", resp.content)
 
