@@ -150,7 +150,7 @@ export default function ResultsGrid({ job }: ResultsGridProps) {
                     <button
                         type="button"
                         onClick={() => setPromptExpanded((v) => !v)}
-                        className="focus-ring inline-flex items-center gap-1 text-[12px] text-muted hover:text-secondary transition-colors"
+                        className="focus-ring inline-flex items-center gap-1 text-[12px] hover:text-secondary transition-colors"
                     >
                         {promptExpanded ? 'Hide prompt ↑' : 'View prompt ↓'}
                     </button>
@@ -178,7 +178,7 @@ export default function ResultsGrid({ job }: ResultsGridProps) {
             {/* ── Source photos (enlarged, with label) ── */}
             {inputImages.length > 0 && (
                 <div>
-                    <p className="text-[11px] font-semibold text-muted uppercase tracking-wider mb-2.5">
+                    <p className="text-[11px] font-semibold uppercase tracking-wider mb-2.5">
                         Original photo{inputImages.length !== 1 ? 's' : ''}
                     </p>
                     <div className="flex gap-3 overflow-x-auto pb-1">

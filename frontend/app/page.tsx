@@ -280,7 +280,7 @@ export default function Home() {
               <button
                 type="button"
                 onClick={handleNewSession}
-                className="focus-ring self-start flex items-center gap-1 text-[12px] text-muted hover:text-secondary transition-colors"
+                className="focus-ring self-start flex items-center gap-1 text-[12px] hover:text-secondary transition-colors"
               >
                 <ArrowLeft className="w-3.5 h-3.5" />
                 New generation

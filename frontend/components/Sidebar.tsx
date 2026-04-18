@@ -20,20 +20,20 @@ type StatusFilter = 'all' | 'completed' | 'processing' | 'partial' | 'failed';
 type CategoryFilter = 'all' | 'bags' | 'jewelry';
 
 export default function Sidebar({ jobs, activeJobId, onJobClick, onNewSession, onDelete, onCancel, onCollapse }: SidebarProps) {
-    const [statusFilter, setStatusFilter]     = useState<StatusFilter>('all');
+    const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
     const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>('all');
-    const [searchQuery, setSearchQuery]       = useState('');
+    const [searchQuery, setSearchQuery] = useState('');
 
     // Apply filters
     const visibleJobs = jobs.filter((job) => {
         const dStatus = getDisplayStatus(job);
         // Status filter — group pending+processing as "active"
-        if (statusFilter === 'completed'  && dStatus !== 'completed')  return false;
+        if (statusFilter === 'completed' && dStatus !== 'completed') return false;
         if (statusFilter === 'processing' && dStatus !== 'processing' && dStatus !== 'pending') return false;
-        if (statusFilter === 'partial'    && dStatus !== 'partial')    return false;
-        if (statusFilter === 'failed'     && dStatus !== 'failed')     return false;
+        if (statusFilter === 'partial' && dStatus !== 'partial') return false;
+        if (statusFilter === 'failed' && dStatus !== 'failed') return false;
         // Category filter
-        if (categoryFilter !== 'all' && job.category !== categoryFilter)  return false;
+        if (categoryFilter !== 'all' && job.category !== categoryFilter) return false;
         // Text search — matches prompt or category
         if (searchQuery.trim()) {
             const q = searchQuery.toLowerCase();
@@ -43,11 +43,11 @@ export default function Sidebar({ jobs, activeJobId, onJobClick, onNewSession, o
     });
 
     const STATUS_OPTS: { value: StatusFilter; label: string }[] = [
-        { value: 'all',        label: 'All'      },
-        { value: 'completed',  label: 'Done'     },
-        { value: 'processing', label: 'Active'   },
-        { value: 'partial',    label: 'Partial'  },
-        { value: 'failed',     label: 'Failed'   },
+        { value: 'all', label: 'All' },
+        { value: 'completed', label: 'Done' },
+        { value: 'processing', label: 'Active' },
+        { value: 'partial', label: 'Partial' },
+        { value: 'failed', label: 'Failed' },
     ];
 
     const hasFilters = statusFilter !== 'all' || categoryFilter !== 'all' || searchQuery.trim().length > 0;
@@ -92,7 +92,7 @@ export default function Sidebar({ jobs, activeJobId, onJobClick, onNewSession, o
                 <div className="px-3 pt-3 pb-2 border-b border-border shrink-0 space-y-2">
                     {/* Search */}
                     <div className="relative">
-                        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted pointer-events-none" />
+                        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 pointer-events-none" />
                         <input
                             type="text"
                             value={searchQuery}
@@ -111,11 +111,10 @@ export default function Sidebar({ jobs, activeJobId, onJobClick, onNewSession, o
                                 key={value}
                                 type="button"
                                 onClick={() => setStatusFilter(value)}
-                                className={`focus-ring text-[11px] font-medium px-2.5 py-1.5 rounded-full transition-all ${
-                                    statusFilter === value
+                                className={`focus-ring text-[11px] font-medium px-2.5 py-1.5 rounded-full transition-all ${statusFilter === value
                                         ? 'bg-primary text-primary-foreground'
                                         : 'bg-card text-muted-foreground hover:text-foreground border border-border hover:border-gray-300'
-                                }`}
+                                    }`}
                             >
                                 {label}
                             </button>
@@ -125,22 +124,20 @@ export default function Sidebar({ jobs, activeJobId, onJobClick, onNewSession, o
                         <button
                             type="button"
                             onClick={() => setCategoryFilter((v) => v === 'bags' ? 'all' : 'bags')}
-                            className={`focus-ring text-[11px] font-medium px-2.5 py-1.5 rounded-full transition-all ${
-                                categoryFilter === 'bags'
+                            className={`focus-ring text-[11px] font-medium px-2.5 py-1.5 rounded-full transition-all ${categoryFilter === 'bags'
                                     ? 'bg-primary text-primary-foreground'
                                     : 'bg-card text-muted-foreground hover:text-foreground border border-border hover:border-gray-300'
-                            }`}
+                                }`}
                         >
                             Bags
                         </button>
                         <button
                             type="button"
                             onClick={() => setCategoryFilter((v) => v === 'jewelry' ? 'all' : 'jewelry')}
-                            className={`focus-ring text-[11px] font-medium px-2.5 py-1.5 rounded-full transition-all ${
-                                categoryFilter === 'jewelry'
+                            className={`focus-ring text-[11px] font-medium px-2.5 py-1.5 rounded-full transition-all ${categoryFilter === 'jewelry'
                                     ? 'bg-primary text-primary-foreground'
                                     : 'bg-card text-muted-foreground hover:text-foreground border border-border hover:border-gray-300'
-                            }`}
+                                }`}
                         >
                             Jewelry
                         </button>
@@ -205,9 +202,6 @@ export default function Sidebar({ jobs, activeJobId, onJobClick, onNewSession, o
             <div className="px-4 py-3.5 border-t border-border shrink-0 flex items-center justify-between">
                 <p className="text-[11px] text-muted-foreground leading-none">
                     © {new Date().getFullYear()} Studio
-                </p>
-                <p className="text-[11px] text-muted-foreground italic font-display">
-                    Issue 01 · Spring
                 </p>
             </div>
         </aside>
