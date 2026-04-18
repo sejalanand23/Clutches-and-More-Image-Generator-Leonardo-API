@@ -121,12 +121,12 @@ export default function ResultsGrid({ job }: ResultsGridProps) {
     if (displayStatus === 'failed') {
         return (
             <div className="flex flex-col items-center justify-center py-16 gap-4 text-center">
-                <div className="w-12 h-12 rounded-2xl bg-[color:color-mix(in_oklch,var(--color-danger)_10%,transparent)] border border-[color:color-mix(in_oklch,var(--color-danger)_20%,var(--color-border))] flex items-center justify-center">
-                    <X className="w-5 h-5 text-[color:var(--color-danger)]" />
+                <div className="w-12 h-12 rounded-2xl bg-destructive/10 border border-destructive/20 flex items-center justify-center">
+                    <X className="w-5 h-5 text-destructive" />
                 </div>
                 <div>
                     <p className="text-[14px] font-semibold text-foreground">Generation failed</p>
-                    <p className="text-[13px] text-muted mt-1 max-w-[40ch]">
+                    <p className="text-[13px] mt-1 max-w-[40ch]">
                         Something went wrong. Check your settings and try again.
                     </p>
                 </div>
@@ -165,11 +165,10 @@ export default function ResultsGrid({ job }: ResultsGridProps) {
             {/* ── Partial-failure banner ── */}
             {displayStatus === 'partial' && (
                 <div className="flex items-start gap-3 px-4 py-3 rounded-xl text-[13px] border
-                  bg-[color:color-mix(in_oklch,var(--color-warning)_8%,transparent)]
-                  border-[color:color-mix(in_oklch,var(--color-warning)_22%,var(--color-border))]"
+                  bg-[#FFF6E0] border-[#F5D076]/70 shadow-sm"
                 >
-                    <span className="text-[color:var(--color-warning)] mt-0.5 text-base leading-none">⚠</span>
-                    <span className="text-secondary">
+                    <span className="mt-0.5 text-base leading-none text-[#D98A00]">⚠</span>
+                    <span className="text-foreground font-medium">
                         Generation stopped early — showing {images.length} available photo{images.length !== 1 ? 's' : ''}.
                     </span>
                 </div>
